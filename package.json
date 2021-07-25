@@ -8,5 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Stephen Studer",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "^3.19.2",
+    "fastify-static": "^4.2.2"
+  }
 }
