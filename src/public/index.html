@@ -7,7 +7,7 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Hello</h1>
+    <h1>Node Authentication</h1>
 
     <h3>Register Form</h3>
     <form id="register-form">
@@ -15,19 +15,52 @@
         <input type="password" name="password" >
         <button type="submit">Register</button>
     </form>
+    <br>
+    <br>
+    <hr>
+    <br>
+
+    <h3>Login Form</h3>
+    <form id="login-form">
+        <input type="email" name="email">
+        <input type="password" name="password" >
+        <button type="submit">Login</button>
+    </form>
 <script>
     (() => {
-        const form = document.getElementById('register-form');
-        form.addEventListener("submit", async (e) => {
+        //Find form element
+        const registerForm = document.getElementById('register-form');
+        //Wait for event
+        registerForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             try {
-                const values = Object.values(form).reduce((obj, field) => {
+                const values = Object.values(registerForm).reduce((obj, field) => {
                     if(field.name){
                         obj[field.name] = field.value;
                     }
                     return obj;
                 }, {})
                 const res = await fetch('/api/register', {
+                    method:"POST",
+                    body: JSON.stringify(values),
+                    headers: {"Content-type": "application/json; charset=UTF-8"}
+                })
+            } catch (error) {
+                console.error(error)
+            }
+        });
+
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            try {
+                const values = Object.values(loginForm).reduce((obj, field) => {
+                    if(field.name){
+                        obj[field.name] = field.value;
+                    }
+                    return obj;
+                }, {})
+                const res = await fetch('/api/authorize', {
                     method:"POST",
                     body: JSON.stringify(values),
                     headers: {"Content-type": "application/json; charset=UTF-8"}
