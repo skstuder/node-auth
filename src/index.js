@@ -21,7 +21,11 @@ async function startApp() {
     //information that comes in is the REQUEST
     app.post("/api/register", {}, async (request, reply) => {
       try {
-        await registerUser(request.body.email, request.body.password);
+        const userId = await registerUser(
+          request.body.email,
+          request.body.password
+        );
+        console.log("userId", userId);
       } catch (error) {
         console.error(error);
       }
