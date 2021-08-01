@@ -1,10 +1,11 @@
 import "./env.js";
 import { fastify } from "fastify";
-import pkg from "fastify-static";
-const { fastifyStatic } = pkg;
+import fastifyStaticPkg from "fastify-static";
+const { fastifyStatic } = fastifyStaticPkg;
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectDb } from "./db.js";
+import { registerUser } from "./accounts/register.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,10 +18,13 @@ async function startApp() {
       root: path.join(__dirname, "public"),
     });
 
-    app.get("/hello-world", {}, (request, reply) => {
-      reply.send({
-        data: "hello world",
-      });
+    //information that comes in is the REQUEST
+    app.post("/api/register", {}, async (request, reply) => {
+      try {
+        await registerUser(request.body.email, request.body.password);
+      } catch (error) {
+        console.error(error);
+      }
     });
 
     await app.listen(4000);
