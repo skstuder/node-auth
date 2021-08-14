@@ -8,6 +8,7 @@ import { connectDb } from "./db.js";
 import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
 import fastifyCookie from "fastify-cookie";
+import { logUserIn } from "./accounts/logUserIn.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,11 +40,15 @@ async function startApp() {
     app.post("/api/authorize", {}, async (request, reply) => {
       try {
         console.log(request.body.email, request.body.password);
-        const userId = await authorizeUser(
+        const { isAuthorized, userId } = await authorizeUser(
           request.body.email,
           request.body.password
         );
+        if (isAuthorized) {
+          await logUserIn(userId, request, reply);
+        }
         // Generate auth tokens
+
         // Set cookies
         reply
           .setCookie("testCookie", "the value is this", {
