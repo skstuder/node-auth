@@ -9,6 +9,7 @@ import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
 import fastifyCookie from "fastify-cookie";
 import { logUserIn } from "./accounts/logUserIn.js";
+import { getUserFromCookies } from "./accounts/user.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,6 +57,25 @@ async function startApp() {
       } catch (error) {
         console.error(error);
       }
+    });
+
+    app.get("/test", {}, async (request, reply) => {
+      // verify login
+      try {
+        const user = await getUserFromCookies(request);
+        if (user?._id) {
+          reply.send({
+            data: user,
+          });
+        } else {
+          reply.send({
+            data: "User Lookup Failed",
+          });
+        }
+      } catch (e) {
+        throw new Error(e);
+      }
+      // Return user email if it exists, otherwise return unauthorized
     });
 
     await app.listen(4000);
