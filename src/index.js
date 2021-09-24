@@ -9,11 +9,13 @@ import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
 import fastifyCookie from "fastify-cookie";
 import { logUserIn } from "./accounts/logUserIn.js";
+import { logUserOut } from "./accounts/logUserOut.js";
 import { getUserFromCookies } from "./accounts/user.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// define server
 const app = fastify();
 
 async function startApp() {
@@ -27,6 +29,7 @@ async function startApp() {
     });
 
     //information that comes in is the REQUEST
+    //think of it as the browser user requesting something
     app.post("/api/register", {}, async (request, reply) => {
       try {
         const userId = await registerUser(
@@ -53,6 +56,17 @@ async function startApp() {
         }
         reply.send({
           data: "Auth Failed",
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    app.post("/api/logout", {}, async (request, reply) => {
+      try {
+        await logUserOut(request, reply);
+        reply.send({
+          data: "User Logged Out",
         });
       } catch (error) {
         console.error(error);

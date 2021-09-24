@@ -26,7 +26,25 @@
         <input type="password" name="password" >
         <button type="submit">Login</button>
     </form>
+
+    <br>
+    <br>
+    <hr>
+    <br>
+
+    <button onclick="logout()">Logout</button>
+
 <script>
+    async function logout() {
+        try {
+            const res = await fetch('/api/logout', {
+                    method:"POST",
+                })
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     (() => {
         //Find form element
         const registerForm = document.getElementById('register-form');
