@@ -62,7 +62,7 @@ async function startApp() {
     app.get("/test", {}, async (request, reply) => {
       // verify login
       try {
-        const user = await getUserFromCookies(request);
+        const user = await getUserFromCookies(request, reply);
         if (user?._id) {
           reply.send({
             data: user,
