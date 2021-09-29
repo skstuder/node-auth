@@ -36,14 +36,28 @@ async function startApp() {
           request.body.email,
           request.body.password
         );
+        if (userId) {
+          await logUserIn(userId, request, reply);
+          reply.send({
+            data: {
+              status: "SUCCESS",
+              userId,
+            },
+          });
+        }
       } catch (error) {
         console.error(error);
+        reply.send({
+          data: {
+            status: "FAILED",
+            userId,
+          },
+        });
       }
     });
 
     app.post("/api/authorize", {}, async (request, reply) => {
       try {
-        console.log(request.body.email, request.body.password);
         const { isAuthorized, userId } = await authorizeUser(
           request.body.email,
           request.body.password
@@ -51,7 +65,10 @@ async function startApp() {
         if (isAuthorized) {
           await logUserIn(userId, request, reply);
           reply.send({
-            data: "User Logged In",
+            data: {
+              status: "SUCCESS",
+              userId,
+            },
           });
         }
         reply.send({
@@ -59,6 +76,12 @@ async function startApp() {
         });
       } catch (error) {
         console.error(error);
+        reply.send({
+          data: {
+            status: "FAILED",
+            userId,
+          },
+        });
       }
     });
 
@@ -66,10 +89,18 @@ async function startApp() {
       try {
         await logUserOut(request, reply);
         reply.send({
-          data: "User Logged Out",
+          data: {
+            status: "SUCCESS",
+          },
         });
       } catch (error) {
         console.error(error);
+        reply.send({
+          data: {
+            status: "FAILED",
+            userId,
+          },
+        });
       }
     });
 
