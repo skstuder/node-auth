@@ -2,12 +2,13 @@ import "./env.js";
 import { fastify } from "fastify";
 import fastifyStaticPkg from "fastify-static";
 const { fastifyStatic } = fastifyStaticPkg;
+import fastifyCookie from "fastify-cookie";
+import fastifyCors from "fastify-cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectDb } from "./db.js";
 import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
-import fastifyCookie from "fastify-cookie";
 import { logUserIn } from "./accounts/logUserIn.js";
 import { logUserOut } from "./accounts/logUserOut.js";
 import { getUserFromCookies } from "./accounts/user.js";
@@ -20,6 +21,11 @@ const app = fastify();
 
 async function startApp() {
   try {
+    app.register(fastifyCors, {
+      origin: [/\.nodeauth.dev/, "https://nodeauth.dev"],
+      credentials: true,
+    });
+
     app.register(fastifyCookie, {
       secret: process.env.COOKIE_SIGNATURE,
     });

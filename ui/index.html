@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Node Auth</title>
 </head>
 <body>
     <h1>Node Authentication</h1>
@@ -61,6 +61,7 @@
                 const res = await fetch('https://api.nodeauth.dev/api/register', {
                     method:"POST",
                     body: JSON.stringify(values),
+                    credentials: 'include',
                     headers: {"Content-type": "application/json; charset=UTF-8"}
                 })
             } catch (error) {
@@ -81,6 +82,7 @@
                 const res = await fetch('https://api.nodeauth.dev/api/authorize', {
                     method:"POST",
                     body: JSON.stringify(values),
+                    credentials: 'include',
                     headers: {"Content-type": "application/json; charset=UTF-8"}
                 })
             } catch (error) {
