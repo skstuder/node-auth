@@ -13,6 +13,7 @@ import { logUserIn } from "./accounts/logUserIn.js";
 import { logUserOut } from "./accounts/logUserOut.js";
 import { getUserFromCookies } from "./accounts/user.js";
 import { sendEmail, mailInit } from "./mail/index.js";
+import { createVerifyEmailLink } from "./accounts/verify.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,10 +24,7 @@ const app = fastify();
 async function startApp() {
   try {
     await mailInit();
-    await sendEmail({
-      subject: "New func",
-      html: "<h2>New html, who dis?",
-    });
+
     app.register(fastifyCors, {
       origin: [/\.nodeauth.dev/, "https://nodeauth.dev"],
       credentials: true,
@@ -48,7 +46,14 @@ async function startApp() {
           request.body.email,
           request.body.password
         );
+        // if account creation was successful
         if (userId) {
+          const emailLink = await createVerifyEmailLink(request.body.email);
+          await sendEmail({
+            to: request.body.email,
+            subject: "Verify your email",
+            html: `<a href="${emailLink}">verify</a>`,
+          });
           await logUserIn(userId, request, reply);
           reply.send({
             data: {
