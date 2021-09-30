@@ -12,6 +12,7 @@ import { authorizeUser } from "./accounts/authorize.js";
 import { logUserIn } from "./accounts/logUserIn.js";
 import { logUserOut } from "./accounts/logUserOut.js";
 import { getUserFromCookies } from "./accounts/user.js";
+import { sendEmail, mailInit } from "./mail/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,6 +22,11 @@ const app = fastify();
 
 async function startApp() {
   try {
+    await mailInit();
+    await sendEmail({
+      subject: "New func",
+      html: "<h2>New html, who dis?",
+    });
     app.register(fastifyCors, {
       origin: [/\.nodeauth.dev/, "https://nodeauth.dev"],
       credentials: true,

@@ -17,6 +17,7 @@
     "fastify-cors": "^6.0.2",
     "fastify-static": "^4.2.2",
     "jsonwebtoken": "^8.5.1",
-    "mongodb": "^4.0.1"
+    "mongodb": "^4.0.1",
+    "nodemailer": "^6.6.5"
   }
 }
