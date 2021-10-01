@@ -34,16 +34,14 @@ async function startApp() {
           agent: httpsAgent,
           headers: { "Content-type": "application/json; charset=UTF-8" },
         });
-        console.log("res", res);
-        reply.code(200).send("all is good!");
+        if (res.status === 200) {
+          return reply.redirect("/");
+        }
+        return reply.code(401).send();
         // send request to api
       } catch (error) {
         console.log(error);
-        reply.send({
-          data: {
-            status: "FAILED",
-          },
-        });
+        return reply.code(401).send();
       }
     });
 
