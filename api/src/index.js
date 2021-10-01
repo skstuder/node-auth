@@ -13,7 +13,10 @@ import { logUserIn } from "./accounts/logUserIn.js";
 import { logUserOut } from "./accounts/logUserOut.js";
 import { getUserFromCookies } from "./accounts/user.js";
 import { sendEmail, mailInit } from "./mail/index.js";
-import { createVerifyEmailLink } from "./accounts/verify.js";
+import {
+  createVerifyEmailLink,
+  validateVerifyEmail,
+} from "./accounts/verify.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -110,6 +113,26 @@ async function startApp() {
             status: "SUCCESS",
           },
         });
+      } catch (error) {
+        console.error(error);
+        reply.send({
+          data: {
+            status: "FAILED",
+            userId,
+          },
+        });
+      }
+    });
+
+    app.post("/api/verify", {}, async (request, reply) => {
+      try {
+        const { token, email } = request.body;
+        console.log("token, email", token, email);
+        const isValid = await validateVerifyEmail(token, email);
+        if (isValid) {
+          return reply.code(200).send();
+        }
+        return reply.code(401).send();
       } catch (error) {
         console.error(error);
         reply.send({
