@@ -56,7 +56,8 @@
     async function logout() {
         try {
             const res = await fetch('https://api.nodeauth.dev/api/logout', {
-                    method:"POST",
+                    method: "POST",
+                    credentials: "include",
                 })
         } catch (error) {
             console.error(error)
