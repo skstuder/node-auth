@@ -11,7 +11,7 @@ import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
 import { logUserIn } from "./accounts/logUserIn.js";
 import { logUserOut } from "./accounts/logUserOut.js";
-import { getUserFromCookies } from "./accounts/user.js";
+import { getUserFromCookies, changePassword } from "./accounts/user.js";
 import { sendEmail, mailInit } from "./mail/index.js";
 import {
   createVerifyEmailLink,
@@ -121,6 +121,29 @@ async function startApp() {
             userId,
           },
         });
+      }
+    });
+
+    app.post("/api/change-password", {}, async (request, reply) => {
+      try {
+        const { oldPassword, newPassword } = request.body;
+        const user = await getUserFromCookies(request, reply);
+        if (user?.email?.address) {
+          const { isAuthorized, userId } = await authorizeUser(
+            user.email.address,
+            oldPassword
+          );
+          if (isAuthorized) {
+            await changePassword(userId, newPassword);
+            return reply.code(200).send("All Good");
+            //update pass in db
+          }
+        }
+        return reply.code(401).send();
+        // If user is who they say they are
+      } catch (error) {
+        console.log(error);
+        return reply.code(401).send();
       }
     });
 
