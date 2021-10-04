@@ -13,6 +13,7 @@ import { logUserIn } from "./accounts/logUserIn.js";
 import { logUserOut } from "./accounts/logUserOut.js";
 import { getUserFromCookies, changePassword } from "./accounts/user.js";
 import { sendEmail, mailInit } from "./mail/index.js";
+import { createResetLink } from "./accounts/reset.js";
 import {
   createVerifyEmailLink,
   validateVerifyEmail,
@@ -156,6 +157,30 @@ async function startApp() {
           return reply.code(200).send();
         }
         return reply.code(401).send();
+      } catch (error) {
+        console.error(error);
+        reply.send({
+          data: {
+            status: "FAILED",
+            userId,
+          },
+        });
+      }
+    });
+
+    app.post("/api/forgot-password", {}, async (request, reply) => {
+      try {
+        const { email } = request.body;
+        const link = await createResetLink(email);
+        if (link) {
+          await sendEmail({
+            to: email,
+            subject: "Reset your password",
+            html: `<a href="${link}">Reset</a>`,
+          });
+        }
+
+        return reply.code(200).send();
       } catch (error) {
         console.error(error);
         reply.send({
