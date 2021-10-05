@@ -13,7 +13,7 @@ import { logUserIn } from "./accounts/logUserIn.js";
 import { logUserOut } from "./accounts/logUserOut.js";
 import { getUserFromCookies, changePassword } from "./accounts/user.js";
 import { sendEmail, mailInit } from "./mail/index.js";
-import { createResetLink } from "./accounts/reset.js";
+import { createResetLink, validateResetEmail } from "./accounts/reset.js";
 import {
   createVerifyEmailLink,
   validateVerifyEmail,
@@ -189,6 +189,27 @@ async function startApp() {
             userId,
           },
         });
+      }
+    });
+
+    app.post("/api/reset", {}, async (request, reply) => {
+      try {
+        const { email, password, token, time } = request.body;
+        const isValid = await validateResetEmail(token, email, time);
+        // find user
+        if (isValid) {
+          const { user } = await import("./user/user.js");
+          const foundUser = await user.findOne({
+            "email.address": email,
+          });
+          console.log("foundUser", foundUser, password);
+          await changePassword(foundUser._id, password);
+          return reply.code(200).send("Password Updated");
+        }
+        return reply.code(401).send("Reset Failed");
+      } catch (error) {
+        console.error(error);
+        return reply.code(401).send("Reset Failed");
       }
     });
 

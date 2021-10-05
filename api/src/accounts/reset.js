@@ -11,6 +11,16 @@ function createResetToken(email, expTimeStamp) {
   }
 }
 
+function validateExpTimestamp(expTimeStamp) {
+  //One day in milliseconds
+  const expTime = 24 * 60 * 60 * 1000;
+  //Difference between now and expired time
+  const dateDiff = Number(expTimeStamp) - Date.now();
+  //Expired if not in past or difference in time is less than allowed
+  const isValid = dateDiff > 0 && dateDiff < expTime;
+  return isValid;
+}
+
 export async function createResetEmailLink(email) {
   try {
     // Create Email Link
@@ -60,6 +70,22 @@ export async function createResetLink(email) {
     //   return true;
     // }
     // return false;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
+
+export async function validateResetEmail(token, email, expTimeStamp) {
+  try {
+    // Create a hash aka token
+    const resetToken = createResetToken(email, expTimeStamp);
+    const isValid = resetToken === token;
+    const isTimestampValid = validateExpTimestamp(expTimeStamp);
+    return isValid && isTimestampValid;
+    // create hash of new password for the db
+
+    // Check to see if user exists and update them with new password
   } catch (error) {
     console.log(error);
     return false;

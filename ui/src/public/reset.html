@@ -11,7 +11,7 @@
     <form id="reset-password-form">
         <label for="password">
             Password
-            <input type="password" name="password">
+            <input required type="password" name="password">
         </label>
         <button type="submit">Reset Password</button>
     </form>
@@ -40,7 +40,7 @@
         const resetForm = document.getElementById('reset-password-form');
         resetForm.addEventListener("submit", reset)
 
-        function reset(e) {
+        async function reset(e) {
             e.preventDefault();
             try {
                 const [ email, time, token ] = window.location.pathname.split("/").slice(-3);
@@ -51,12 +51,12 @@
                     time, 
                     token,
                 }
-                // const res = await fetch('https://api.nodeauth.dev/api/register', {
-                //     method:"POST",
-                //     body: JSON.stringify(values),
-                //     credentials: 'include',
-                //     headers: {"Content-type": "application/json; charset=UTF-8"}
-                // })
+                const res = await fetch('https://api.nodeauth.dev/api/reset', {
+                    method:"POST",
+                    body: JSON.stringify(values),
+                    credentials: 'include',
+                    headers: {"Content-type": "application/json; charset=UTF-8"}
+                })
             } catch (error) {
                 console.error(error)
             }
