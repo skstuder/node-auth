@@ -12,7 +12,11 @@ import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
 import { logUserIn } from "./accounts/logUserIn.js";
 import { logUserOut } from "./accounts/logUserOut.js";
-import { getUserFromCookies, changePassword } from "./accounts/user.js";
+import {
+  getUserFromCookies,
+  changePassword,
+  register2FA,
+} from "./accounts/user.js";
 import { sendEmail, mailInit } from "./mail/index.js";
 import { createResetLink, validateResetEmail } from "./accounts/reset.js";
 import {
@@ -55,8 +59,28 @@ async function startApp() {
       const user = await getUserFromCookies(request, reply);
       const { token, secret } = request.body;
       const isValid = authenticator.verify({ token, secret });
-      console.log("isValid", isValid);
-      reply.send("success");
+      if (user._id && isValid) {
+        await register2FA(user._id, secret);
+        reply.send("success");
+      }
+      reply.code(401).send();
+    });
+
+    app.post("/api/verify-2fa", {}, async (request, reply) => {
+      const { token, email, password } = request.body;
+      const { isAuthorized, userId, authenticatorSecret } = await authorizeUser(
+        email,
+        password
+      );
+      const isValid = authenticator.verify({
+        token,
+        secret: authenticatorSecret,
+      });
+      if (userId && isValid && isAuthorized) {
+        await logUserIn(userId, request, reply);
+        reply.send("success");
+      }
+      reply.code(401).send();
     });
 
     //information that comes in is the REQUEST
@@ -96,11 +120,9 @@ async function startApp() {
 
     app.post("/api/authorize", {}, async (request, reply) => {
       try {
-        const { isAuthorized, userId } = await authorizeUser(
-          request.body.email,
-          request.body.password
-        );
-        if (isAuthorized) {
+        const { isAuthorized, userId, authenticatorSecret } =
+          await authorizeUser(request.body.email, request.body.password);
+        if (isAuthorized && !authenticatorSecret) {
           await logUserIn(userId, request, reply);
           reply.send({
             data: {
@@ -108,10 +130,14 @@ async function startApp() {
               userId,
             },
           });
+        } else if (isAuthorized && authenticatorSecret) {
+          reply.send({
+            data: {
+              status: "2FA",
+            },
+          });
         }
-        reply.send({
-          data: "Auth Failed",
-        });
+        reply.code(401).send();
       } catch (error) {
         console.error(error);
         reply.send({

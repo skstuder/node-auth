@@ -73,6 +73,25 @@ export async function refreshTokens(sessionToken, userId, reply) {
   }
 }
 
+export async function register2FA(userId, secret) {
+  try {
+    const { user } = await import("../user/user.js");
+
+    return user.updateOne(
+      {
+        _id: userId,
+      },
+      {
+        $set: {
+          //hash and salt
+          authenticator: secret,
+        },
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+}
 export async function changePassword(userId, newPassword) {
   try {
     const { user } = await import("../user/user.js");
